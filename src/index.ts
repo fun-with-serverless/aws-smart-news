@@ -1,6 +1,6 @@
-import axios from "axios";
-import { parseString } from "xml2js";
-import { promisify } from "util";
+import axios from 'axios';
+import { parseString } from 'xml2js';
+import { promisify } from 'util';
 
 // Convert xml2js callback to promise
 const parseXMLPromise = promisify(parseString);
@@ -13,7 +13,7 @@ interface RSSItem {
   creator: string;
   description: string;
   categories: string[];
-  contentEncoded: string
+  contentEncoded: string;
 }
 
 interface RSSFeed {
@@ -31,10 +31,10 @@ interface XMLRSSChannel {
     title: string[];
     link: string[];
     pubDate: string[];
-    "dc:creator": string[];
+    'dc:creator': string[];
     description: string[];
     category?: string[];
-    "content:encoded": string[];
+    'content:encoded': string[];
   }>;
 }
 
@@ -47,16 +47,14 @@ interface XMLRSSResponse {
 class AWSBlogFetcher {
   private readonly feedUrl: string;
 
-  constructor(feedUrl: string = "https://aws.amazon.com/blogs/aws/feed/") {
+  constructor(feedUrl: string = 'https://aws.amazon.com/blogs/aws/feed/') {
     this.feedUrl = feedUrl;
   }
 
   async fetchFeed(): Promise<RSSFeed> {
     try {
       const response = await axios.get(this.feedUrl);
-      const parsedXml = (await parseXMLPromise(
-        response.data,
-      )) as XMLRSSResponse;
+      const parsedXml = (await parseXMLPromise(response.data)) as XMLRSSResponse;
       return this.transformRSSData(parsedXml);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -72,10 +70,10 @@ class AWSBlogFetcher {
     const items: RSSItem[] = channel.item.map((item) => ({
       title: item.title[0],
       link: item.link[0],
-      pubDate: item["pubDate"][0],
-      creator: item["dc:creator"]?.[0] ?? "",
+      pubDate: item['pubDate'][0],
+      creator: item['dc:creator']?.[0] ?? '',
       description: item.description[0],
-      contentEncoded: item["content:encoded"]?.[0] ?? "",
+      contentEncoded: item['content:encoded']?.[0] ?? '',
       categories: item.category ?? [],
     }));
 
@@ -100,22 +98,22 @@ async function displayLatestAWSPosts() {
   try {
     const latestPosts = await fetcher.getLatestPosts(3);
 
-    console.log("Latest AWS Blog Posts:");
+    console.log('Latest AWS Blog Posts:');
     latestPosts.forEach((post, index) => {
       console.log(`\n${index + 1}. ${post.title}`);
       console.log(`Published: ${post.pubDate}`);
       console.log(`Link: ${post.link}`);
       console.log(`Author: ${post.creator}`);
-      console.log(`Categories: ${post.categories.join(", ")}`);
-      console.log("\nContent Preview:");
+      console.log(`Categories: ${post.categories.join(', ')}`);
+      console.log('\nContent Preview:');
       console.log(post.contentEncoded);
     });
   } catch (error) {
-    console.error("Error fetching AWS blog posts:", error);
+    console.error('Error fetching AWS blog posts:', error);
   }
 }
 
 // Run the example
 displayLatestAWSPosts().finally(() => {
-  console.info("Done");
+  console.info('Done');
 });
