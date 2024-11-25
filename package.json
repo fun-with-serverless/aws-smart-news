@@ -1,0 +1,29 @@
+{
+  "name": "aws-smart-news",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "prettier": "prettier --write .",
+    "prettier:check": "prettier --check .",
+    "lint": "eslint",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/node": "^22.9.4",
+    "@types/xml2js": "^0.4.14",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.16.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.8",
+    "xml2js": "^0.6.2"
+  }
+}
