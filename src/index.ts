@@ -1,48 +1,9 @@
-import axios from 'axios';
-import { parseString } from 'xml2js';
-import { promisify } from 'util';
+
 
 // Convert xml2js callback to promise
-const parseXMLPromise = promisify(parseString);
 
 // Define interfaces for the RSS feed structure
-interface RSSItem {
-  title: string;
-  link: string;
-  pubDate: string;
-  creator: string;
-  description: string;
-  categories: string[];
-  contentEncoded: string;
-}
 
-interface RSSFeed {
-  items: RSSItem[];
-  title: string;
-  description: string;
-  lastBuildDate: string;
-}
-
-interface XMLRSSChannel {
-  title: string[];
-  description: string[];
-  lastBuildDate: string[];
-  item: Array<{
-    title: string[];
-    link: string[];
-    pubDate: string[];
-    'dc:creator': string[];
-    description: string[];
-    category?: string[];
-    'content:encoded': string[];
-  }>;
-}
-
-interface XMLRSSResponse {
-  rss: {
-    channel: XMLRSSChannel[];
-  };
-}
 
 class AWSBlogFetcher {
   private readonly feedUrl: string;

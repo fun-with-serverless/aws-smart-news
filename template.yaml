@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Pulls AWS RSS feed.
+  
+    
+
+Resources:
+  FeedReaderFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: src/handlers
+      Handler: feed-reader.lambdaHandler
+      Runtime: nodejs22.x
+      Timeout: 10
+      MemorySize: 128
+      Architectures:
+        - arm64
+      Environment:
+        Variables:
+          S3_KB_BUCKET: !Ref KBBucket
+    Metadata: 
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints: 
+        - feed-reader.ts
+
+  KBBucket:
+    Type: AWS::S3::Bucket
