@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { parseString } from 'xml2js';
 import { promisify } from 'util';
-import { RSSFeed, RSSItem, XMLRSSResponse } from '../types';
+import { RSSFeed, RSSItem, XMLRSSResponse } from './types';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+
 
 const parseXMLPromise = promisify(parseString);
 const AWS_RSS_FEED = 'https://aws.amazon.com/blogs/aws/feed/';

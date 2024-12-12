@@ -1,5 +1,9 @@
-import { startMoto, stopMoto } from './../testUtils';
-import { lambdaHandler, LATEST_ITEM_KEY, parseLatestItem } from '../../src/handlers/feedReader';
+process.env.AWS_ENDPOINT_URL = 'http://127.0.0.1:5001';
+
+import { expect, test, describe, beforeEach, afterEach, vi } from 'vitest'
+
+import { startMoto, stopMoto } from '../../testUtils';
+import { lambdaHandler, LATEST_ITEM_KEY, parseLatestItem } from '../../../src/handlers/feed/feedReader';
 import axios, { AxiosError } from 'axios';
 
 import { S3Client, GetObjectCommand, CreateBucketCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
@@ -55,8 +59,8 @@ describe('Feed Reader', () => {
   let moto: ChildProcess;
   const s3Client = new S3Client();
   beforeEach(async () => {
-    moto = await startMoto();
-    const axiosGetMock = jest.fn();
+    moto = await startMoto(5001);
+    const axiosGetMock = vi.fn();
     axios.get = axiosGetMock;
 
     axiosGetMock.mockResolvedValue({ data: FEED_SNIPPET });
@@ -123,7 +127,7 @@ describe('Feed Reader', () => {
   });
 
   test('Failed fetching rss feed', async () => {
-    axios.get = jest.fn().mockRejectedValue(new AxiosError());
+    axios.get = vi.fn().mockRejectedValue(new AxiosError());
     await expect(lambdaHandler()).rejects.toThrow();
   });
   test('Missing bucket env variable', async () => {

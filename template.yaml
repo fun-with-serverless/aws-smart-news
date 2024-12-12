@@ -1,16 +1,14 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Pulls AWS RSS feed.
-  
-    
 
 Resources:
   FeedReaderFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/handlers
-      Handler: feed-reader.lambdaHandler
+      Handler: feedReader.lambdaHandler
       Runtime: nodejs22.x
       Timeout: 10
       MemorySize: 128
@@ -19,14 +17,72 @@ Resources:
       Environment:
         Variables:
           S3_KB_BUCKET: !Ref KBBucket
-    Metadata: 
+          POWERTOOLS_SERVICE_NAME: "feed-reader"
+
+      Events:
+        WeeklyTrigger:
+          Type: Schedule
+          Properties:
+            Schedule: rate(7 days)
+            Name: WeeklyTrigger
+            Description: trigger once per week
+    Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
         Target: "es2020"
         Sourcemap: true
-        EntryPoints: 
-        - feed-reader.ts
+        EntryPoints:
+          - feedReader.ts
+  RegisterEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/registration
+      Handler: registerEmail.lambdaHandler
+      Runtime: nodejs22.x
+      Timeout: 10
+      MemorySize: 128
+      Architectures:
+        - arm64
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: "RegisterEmail"
+          REGISTERED_QUERIES_TABLE: !Ref RegisteredQueriesTable
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowHeaders: "*"
+          AllowMethods: "*"
+          AllowOrigins: "*"
+
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - registerEmail.ts
 
   KBBucket:
     Type: AWS::S3::Bucket
+
+  # DynamoDB table for storing email addresses and their respective queries.
+  RegisteredQueriesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+Outputs:
+  RegisterEmailFunction:
+    Description: "Register Email Function URL Endpoint"
+    Value:
+      Fn::GetAtt: RegisterEmailFunction.FunctionUrl
